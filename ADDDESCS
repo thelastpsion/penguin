@@ -1,0 +1,28 @@
+#!/usr/bin/perl
+#
+# takes Richard's IVT.TXT file, strips descriptions, adds to mine
+# oh all that typing would be the death of me. 
+#
+open RICH, "ivt.txt" || die "Can't open Richard's file\n";
+while (<RICH>) {
+  chomp;
+  if (/INT\s(..)\s....:....\s+(\S*)/) {
+    $ints{$1}=$2;
+  }
+}
+close RICH;
+
+open MATT, "ivt.lst" || die "Can't open Matt's file\n";
+while (<MATT>) {
+  chomp;
+  if (/INT (..)=....:FC2F/) {
+    print "$_ Unused\n";
+  }
+  elsif (/INT (..)=....:..../) {
+    print "$_ $ints{$1}\n";
+  }
+  else {
+    print "$_\n";
+  }
+}
+close MATT;

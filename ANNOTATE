@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+#
+# annotates the listing file with the interrupts, comments, and data blocks
+# from the 3cdesc.txt file.
+#
+# Requirements:
+# 1) 'listing', a disassembly of the ROM - produce this yourself from the 
+#    ROM image file obtained using EDisAsm, and your favourite disassember.
+# 2) '3cdesc.txt', the commentary on the 3c disassembly, found in this archive.
+#
+# Usage: annotate > listing.ann
+#
+open LIST, "3cdesc.txt" || die "Can't open 3c Description\n";
+while (<LIST>) {
+  if (/INT\s(..)=A000:(....)\s(\S+)/) {
+    $comment{$2}="INT $1 $3";
+  }
+  elsif (/^([0-9a-fA-F]{4}) (.+)/) {
+    $comment{$1}=$2;
+  }
+  elsif (/^D([BWQ])\s+([0-9a-fA-F]{4})\s+L(\d+)/) {
+    $block{$2}="$1,$3";
+  }
+}
+close LIST;
+
+open LISTING, "listing" || die "Can't open listing\n";
+while (<LISTING>) {
+  ($addr) = /^A000:(....)/;
+  if (defined $comment{$addr}) {
+    print ";\n; $comment{$addr}\n;\n";
+  }
+  print $_;
+  print ";\n" if (/I?RET/);
+  if (defined $block{$addr}) {
+    ($type,$len) = split(',',$block{$addr});
+    print "A000:$addr D$type     [$len bytes]\n";
+  }
+}
+close LISTING;

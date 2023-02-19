@@ -1,0 +1,8 @@
+#system epoc img
+#set epocinit=iplib
+#model small jpi
+#compile penguin
+#pragma link(access.obj)
+#pragma link(..\..\psistack\source\library\utils\utils.lib)
+#pragma link(hwif.lib)
+#link %main
